@@ -1,0 +1,30 @@
+import pandas as pd
+
+# 컬럼이름을 팩터명으로 하기 위해 함수에서 팩터명 따로 받는것으로
+def Get_factor_return(factor_name, split_q_df):
+    
+    #계산에 필요한 데이터셋 가져오기
+    df_me = get_data(df, columns='me')
+    df_ret = get_data(df, columns='return')
+    
+    # high, low 그룹 위치값 구하기
+    high = (split_q_df=='H')
+    low = (split_q_df=='L')
+        
+    # high, low 그룹 일별 수익률 시가총액 가중평균
+    ret_high = ((df_me[high] * df_ret[high]).sum(axis=1)\
+                /df_me[high].sum(axis=1)).to_frame()
+    
+    ret_low = ((df_me[low] * df_ret[low]).sum(axis=1)\
+               /df_me[low].sum(axis=1)).to_frame()
+
+    # factor_return_df 만들고 NA값 제거하고 인덱스 및 컬럼 이름 붙이기
+    factor_return_df = ret_high - ret_low
+    factor_return_df.dropna()
+    factor_return_df.columns = [factor_name]
+    factor_return_df.index.name = 'date'    
+
+    # split_q 개선제안 : 
+    #factor_return 개선제안 : 팩터 리턴 뿐만 아니라 변동성도 같이 제공?
+    
+    return factor_return_df
